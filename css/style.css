@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Barriecito&family=DynaPuff:wght@400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: "DynaPuff", sans-serif;
+    background: linear-gradient(270deg, #992342, #627eb7, #c2e9fb, #4c8188);
+    background-size: 800% 800%;
+    animation: gradientShift 15s ease-in-out infinite;
+}
+
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+
+
+.container {
+    display: block;
+    padding: 50px;
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    background-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.main-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(183, 50, 50, 0.3);
+    border: 1px solid rgba(216, 80, 80, 0.4);
+}
+
+h1 {
+    margin-bottom: 40px;
+    color: rgb(183, 50, 50);
+    font-size: 1.8rem;
+    transition: transform 0.5s ease-out;
+}
+
+h1:hover {
+    transform: scale(1.08);
+}
+
+button {
+    display: block;
+    width: 90%;
+    max-width: 300px;
+    height: 50px;
+    margin: 20px auto;
+    border-radius: 25px;
+    border: none;
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg, #dc143c, #4169e1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+button:active {
+    transform: scale(0.97);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+}
