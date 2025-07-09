@@ -117,24 +117,35 @@ function validateCurrentStep() {
     // Clear previous error messages
     clearErrorMessages();
 
-    // Check required fields
+    // Check required fields, but skip those that are hidden
     requiredFields.forEach(field => {
+        // Skip validation for elements that are not visible (display: none or inside a hidden parent)
+        if (field.offsetParent === null) {
+            return;
+        }
+
         if (!field.value.trim() && field.type !== 'radio' && field.type !== 'checkbox') {
             showFieldError(field, 'This field is required');
             isValid = false;
         }
     });
 
-    // Check radio button groups
+    // Check radio button groups (visible ones only)
     const radioGroups = currentStepElement.querySelectorAll('input[type="radio"][required]');
     const checkedGroups = new Set();
     radioGroups.forEach(radio => {
+        if (radio.offsetParent === null) {
+            return;
+        }
         if (radio.checked) {
             checkedGroups.add(radio.name);
         }
     });
 
     radioGroups.forEach(radio => {
+        if (radio.offsetParent === null) {
+            return;
+        }
         if (!checkedGroups.has(radio.name)) {
             showFieldError(radio, 'Please select an option');
             isValid = false;
@@ -147,7 +158,8 @@ function validateCurrentStep() {
             isValid = validateStep1() && isValid;
             break;
         case 2:
-            isValid = validateStep3() && isValid;
+            // Step 2 only requires a category selection, which is already handled by the generic required-field check above.
+            // No additional validation is necessary here.
             break;
         case 3:
             isValid = validateStep3() && isValid;
@@ -156,7 +168,8 @@ function validateCurrentStep() {
             isValid = validateStep4() && isValid;
             break;
         case 5:
-            isValid = validateStep3() && isValid;
+            // Step 5 (membership type) relies on required radio inputs that are validated generically.
+            // Additional custom validation is not needed at this stage.
             break;
         case 6:
             isValid = validateStep6() && isValid;
@@ -190,7 +203,7 @@ function validateStep3() {
     }
 
     // Category-specific email validation
-    if (category === 'current_msu') {
+    if (category === 'current-msu') {
         if (!email.endsWith('@msstate.edu')) {
             showFieldError(document.getElementById('email'), 'Current MSU members must use @msstate.edu email');
             return false;
@@ -203,7 +216,7 @@ function validateStep3() {
 function validateStep4() {
     const category = document.querySelector('input[name="category"]:checked')?.value;
     
-    if (category === 'current_msu') {
+    if (category === 'current-msu') {
         const affiliation = document.querySelector('input[name="msuAffiliation"]:checked')?.value;
         if (!affiliation) {
             showError('Please select your MSU affiliation');
@@ -369,7 +382,7 @@ function updateEmailHint(category, emailType = null) {
     const hintElement = document.getElementById('email-hint');
     
     switch (category) {
-        case 'current_msu':
+        case 'current-msu':
             hintElement.textContent = 'Must be your @msstate.edu email address';
             break;
         case 'alumni':
@@ -479,7 +492,7 @@ function populateRegistrationSummary() {
     `;
     
     // Add category-specific information
-    if (formData.category === 'current_msu') {
+    if (formData.category === 'current-msu') {
         summaryHtml += `
             <div class="summary-item">
                 <strong>MSU Affiliation:</strong> ${formData.msuAffiliation || 'Not provided'}
@@ -529,7 +542,7 @@ function collectFormData() {
 
 function getCategoryDisplayName(category) {
     switch (category) {
-        case 'current_msu': return 'Current MSU Student/Staff/Faculty';
+        case 'current-msu': return 'Current MSU Student/Staff/Faculty';
         case 'alumni': return 'MSU Alumni';
         case 'others': return 'Others';
         default: return 'Not selected';

@@ -3,11 +3,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const flagOverlay = document.getElementById('flag-overlay');
     const mainContent = document.getElementById('main-content');
     
-    // Check if this is a fresh navigation (not a reload)
-    const navEntry = performance.getEntriesByType("navigation")[0];
-    const isFirstVisit = navEntry && navEntry.type === 'navigate';
-    
-    if (isFirstVisit) {
+    // Show intro animation only on the very first visit in this browser session
+    const hasVisited = sessionStorage.getItem('nsaVisited');
+
+    if (!hasVisited) {
+        // Mark that the visitor has already seen the intro so subsequent navigations skip animation
+        sessionStorage.setItem('nsaVisited', 'true');
+
         // Show flag animation for first visit
         flagOverlay.classList.remove('hidden');
         mainContent.classList.add('content-appear');
@@ -18,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 4000);
         
     } else {
-        // For reloads, show content immediately
+        // For reloads or subsequent navigations, show content immediately
         flagOverlay.classList.add('hidden');
         mainContent.classList.add('immediate-show');
     }
@@ -40,9 +42,13 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (backToHomeButton) {
         backToHomeButton.addEventListener('click', function() {
-            // Show main content and hide registration form
+            // Hide registration form and show portal immediately
             registrationContainer.classList.add('hidden');
             mainContent.style.display = 'block';
+            // Ensure portal is fully visible without waiting for intro animation
+            mainContent.classList.add('immediate-show');
+            mainContent.classList.remove('content-appear');
+            flagOverlay.classList.add('hidden');
         });
     }
     
@@ -144,6 +150,11 @@ function validateCurrentStep() {
     let isValid = true;
     
     requiredFields.forEach(field => {
+        // Skip validation for elements that are not currently visible (hidden or inside hidden containers)
+        if (field.offsetParent === null) {
+            return;
+        }
+
         if (field.type === 'radio') {
             const radioGroup = currentStepEl.querySelectorAll(`[name="${field.name}"]`);
             const isChecked = Array.from(radioGroup).some(radio => radio.checked);
