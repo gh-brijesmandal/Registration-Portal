@@ -206,31 +206,6 @@ button:active {
     }
 }
 
-@keyframes flagGrowAndFade {
-    0% {
-        transform: scale(0.3);
-        opacity: 0;
-        filter: blur(10px) brightness(1.2);
-    }
-
-    30% {
-        transform: scale(1.1);
-        opacity: 1;
-        filter: blur(0) brightness(1.2);
-    }
-
-    60% {
-        transform: scale(1);
-        opacity: 1;
-        filter: blur(0) brightness(1.2);
-    }
-
-    100% {
-        transform: scale(3);
-        opacity: 0;
-        filter: blur(8px) brightness(1.2);
-    }
-}
 
 /* Main content animations */
 .main-container.content-appear {
@@ -534,6 +509,8 @@ button:active {
     box-sizing: border-box;
     backdrop-filter: blur(10px);
 }
+
+
 
 .input-group input:focus,
 .input-group select:focus {
