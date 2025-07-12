@@ -283,7 +283,7 @@ function saveCurrentStepData() {
                 formData[input.name] = input.value; // Only save checked value
             }
         } else if (input.type === 'file') {
-            if (input.files.length > 0) {
+            if (input.files.length > 0 && input.files.length <= 2) {
                 formData[input.name] = input.files[0]; // Save file object
             }
         } else {
@@ -589,13 +589,13 @@ function calculateMembershipFee() {
 
     // --- Enrollment period logic (customize as needed) ---
     if ((month === 8) || (month === 9) || (month === 10) || (month === 11) || (month === 12 && day <= 31)) {
-        enrollmentPeriod = 'Fall Enrollment (Aug 1 - Sep 30)';
+        enrollmentPeriod = 'Fall Enrollment (Aug 1 - Dec 31)';
         fee = 25;
     } else if ((month === 1) || (month === 2) || (month === 3) || (month === 4) || (month === 5 && day <= 31)) {
-        enrollmentPeriod = 'Spring Enrollment (Jan 1 - Feb 28/29)';
+        enrollmentPeriod = 'Spring Enrollment (Jan 1 - May 31)';
         fee = 15;
     } else if (month >= 6 && month <= 7) {
-        enrollmentPeriod = 'Summer Enrollment (Mar 1 - Jul 31)';
+        enrollmentPeriod = 'Summer Enrollment (June 1 - Jul 31)';
         fee = 5;
     } else {
         enrollmentPeriod = 'Outside enrollment period - Will be deferred to next cycle';
@@ -710,6 +710,8 @@ function submitRegistration() {
     document.getElementById('main-content').style.display = 'block';
     document.getElementById('nsa-registration-form').reset();
     currentStep = 1;
+    console.log(formData);
     formData = {};
 }
 // ===================== END OF SCRIPT =====================
+
