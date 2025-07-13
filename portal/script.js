@@ -1,3 +1,4 @@
+// intro animation
 if (performance.getEntriesByType("navigation")[0].type === "navigate") {
     document.addEventListener("DOMContentLoaded", function () {
         console.log("DOM fully loaded and parsed");
@@ -28,6 +29,7 @@ else {
     });
 }
 
+// buttons logic
 const registrationForm = document.getElementById("registerButton");
 const adminPanel = document.getElementById("adminButton");
 

@@ -48,8 +48,9 @@ document.getElementById("adminLoginForm").addEventListener("submit", function (e
 
     if (email === correctEmail && password === correctPassword) {
         // success
-        status.textContent = "";
-        window.location.href = "dashboard.html"; // Redirect to admin panel
+        status.textContent = "Login Success!";
+        status.style.color = "#28a745";
+        window.open("admin-dashboard.html","_blank");                                     // Open the admin dashboard
     } else {
         // failure
         status.textContent = "Invalid email or password.";
