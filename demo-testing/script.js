@@ -2,6 +2,8 @@
 // This script manages the animated intro, navigation, and multi-step registration form.
 // It handles UI transitions, form validation, dynamic field rendering, and summary display.
 // --------------------------------------------------------------------------
+// Insert strict mode directive to enforce safer JavaScript features
+"use strict";
 
 // ===================== DOMContentLoaded: Initial Page Setup =====================
 // Wait for the DOM to be fully loaded before running any scripts.
@@ -59,8 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (adminButton) {
         adminButton.addEventListener('click', function() {
             window.location.href = 'admin.html'; // Redirect to admin page
-        });
-    }
+        });    }
 });
 
 
@@ -85,6 +86,9 @@ function initializeRegistrationForm() {
     calculateMembershipFee(); // Show current fee and period
     setupFormNavigation(); // Attach navigation event listeners
     setupFormValidation(); // Attach validation logic
+    
+    // Load saved data into form fields from the current step
+    loadSavedFormData();
 }
 
 
@@ -101,6 +105,56 @@ function setupFormNavigation() {
     const prevButtons = document.querySelectorAll('.btn-prev');
     // Get the registration form element by its ID
     const form = document.getElementById('nsa-registration-form');
+    // Guard against missing form element to avoid runtime errors in environments where the
+    // registration template has not been rendered yet (e.g. other pages that still load this script).
+    if (!form) {
+        console.error('setupFormNavigation: #nsa-registration-form element not found – navigation listeners not attached.');
+        return;
+    }
+
+    // -------------------- Enter Key Press Logic --------------------
+    // Add global Enter key listener to the form for next step functionality
+    form.addEventListener('keydown', function(e) {
+        // Check if Enter key was pressed
+        if (e.key === 'Enter') {
+            // Prevent default form submission
+            e.preventDefault();
+            
+            // Only proceed if we're not on the last step (step 6 is confirmation/submit)
+            if (currentStep < 6) {
+                // Validate the current step before proceeding
+                if (validateCurrentStep()) {
+                    // Save the data entered in the current step to the formData object
+                    saveCurrentStepData();
+                    // Move to the next step
+                    currentStep++;
+                    // Show the next step in the form
+                    showStep(currentStep);
+                    // Update the progress bar to reflect the new step
+                    updateProgressBar();
+
+                    // Conditional logic for specific steps:
+                    // If the user is on step 3, set up the email step (dynamic fields)
+                    if (currentStep === 3) {
+                        setupEmailStep();
+                    // If the user is on step 4, set up the details step (dynamic fields)
+                    } else if (currentStep === 4) {
+                        setupDetailsStep();
+                    // If the user is on step 6, set up the confirmation step (summary)
+                    } else if (currentStep === 6) {
+                        setupConfirmationStep();
+                    }
+                }
+                // If validation fails, do not proceed (error messages are shown by validateCurrentStep())
+            } else if (currentStep === 6) {
+                // On the final step, Enter key should submit the form
+                if (validateCurrentStep()) {
+                    saveCurrentStepData();
+                    submitRegistration();
+                }
+            }
+        }
+    });
 
     // -------------------- Next Step Button Logic --------------------
     // For each Next button, add a click event listener
@@ -154,6 +208,14 @@ function setupFormNavigation() {
     form.addEventListener('submit', function(e) {
         // Prevent the default form submission (page reload)
         e.preventDefault();
+        
+        // Ensure we're on the final step (6) before submitting
+        if (currentStep !== 6) {
+            // If not on the final step, show an error message
+            alert('Please complete all steps before submitting');
+            return;
+        }
+        
         // Validate the current (final) step before submitting
         if (validateCurrentStep()) {
             // Save the data from the final step
@@ -163,6 +225,7 @@ function setupFormNavigation() {
         } else {
             // If validation fails, do not submit
             // Error messages are shown by validateCurrentStep()
+            console.log('Form validation failed on final step');
         }
     });
 }
@@ -215,18 +278,24 @@ function validateCurrentStep() {
             if (!isChecked) {
                 isValid = false;
                 showFieldError(field, 'Please select an option');
+            } else {
+                clearFieldError(field); // Clear error if valid
             }
-        } else if (field.type === 'checkbox') {
-            // Checkbox must be checked
+        } else if (field.type === 'checkbox' && field.hasAttribute('required')) {
+            // Required checkbox must be checked
             if (!field.checked) {
                 isValid = false;
                 showFieldError(field, 'This field is required');
+            } else {
+                clearFieldError(field); // Clear error if valid
             }
         } else if (field.type === 'file') {
             // File input must have a file selected
             if (field.hasAttribute('required') && !field.files.length) {
                 isValid = false;
                 showFieldError(field, 'Please upload a file');
+            } else {
+                clearFieldError(field); // Clear error if valid
             }
         } else if (!field.value.trim()) {
             // Text, number, etc. must not be empty
@@ -234,11 +303,27 @@ function validateCurrentStep() {
             showFieldError(field, 'This field is required');
         } else if (field.type === 'email') {
             // Email must match pattern
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(field.value)) {
-                isValid = false;
-                showFieldError(field, 'Please enter a valid email address');
+            if (field.hasAttribute('pattern')) {
+                // Use pattern attribute if provided (for MSU email validation)
+                const pattern = new RegExp(field.getAttribute('pattern'));
+                if (!pattern.test(field.value)) {
+                    isValid = false;
+                    showFieldError(field, 'Please enter a valid MSU email address (@msstate.edu)');
+                } else {
+                    clearFieldError(field); // Clear error if valid
+                }
+            } else {
+                // General email validation
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(field.value)) {
+                    isValid = false;
+                    showFieldError(field, 'Please enter a valid email address');
+                } else {
+                    clearFieldError(field); // Clear error if valid
+                }
             }
+        } else {
+            clearFieldError(field); // Clear error if valid
         }
 
         // --- If valid, clear any previous error ---
@@ -258,16 +343,52 @@ function showFieldError(field, message) {
     const errorDiv = document.createElement('div');
     errorDiv.className = 'field-error';
     errorDiv.textContent = message;
-    field.parentNode.appendChild(errorDiv); // Show error below field
-    field.classList.add('error'); // Add error style
+    
+    // Handle radio buttons and checkboxes (show error after the last item in group)
+    if (field.type === 'radio' || field.type === 'checkbox') {
+        const fieldName = field.name;
+        const radioGroup = document.querySelectorAll(`[name="${fieldName}"]`);
+        const lastField = radioGroup[radioGroup.length - 1];
+        
+        // Find the closest parent with proper structure to add error
+        let parent = lastField.closest('.radio-group, .checkbox-group') || lastField.parentNode;
+        parent.appendChild(errorDiv);
+        
+        // Add error class to all radios/checkboxes in group
+        radioGroup.forEach(input => {
+            input.classList.add('error');
+        });
+    } else {
+        field.parentNode.appendChild(errorDiv); // Show error below field
+        field.classList.add('error'); // Add error style
+    }
 }
 
 function clearFieldError(field) {
-    const existingError = field.parentNode.querySelector('.field-error');
+    let container;
+    
+    // Handle radio buttons and checkboxes (clear all errors for the group)
+    if (field.type === 'radio' || field.type === 'checkbox') {
+        const fieldName = field.name;
+        const inputGroup = document.querySelectorAll(`[name="${fieldName}"]`);
+        
+        // Find the closest parent containing all items in the group
+        container = field.closest('.radio-group, .checkbox-group') || field.parentNode;
+        
+        // Remove error class from all inputs in group
+        inputGroup.forEach(input => {
+            input.classList.remove('error');
+        });
+    } else {
+        container = field.parentNode;
+        field.classList.remove('error');
+    }
+    
+    // Remove any error message
+    const existingError = container.querySelector('.field-error');
     if (existingError) {
         existingError.remove();
     }
-    field.classList.remove('error');
 }
 
 
@@ -278,16 +399,54 @@ function saveCurrentStepData() {
     const inputs = currentStepEl.querySelectorAll('input, select, textarea'); // All input fields
 
     inputs.forEach(input => {
-        if (input.type === 'radio' || input.type === 'checkbox') {
+        // Skip disabled or hidden fields
+        if (input.disabled || (input.type !== 'hidden' && input.offsetParent === null)) {
+            return;
+        }
+        
+        if (input.type === 'radio') {
             if (input.checked) {
                 formData[input.name] = input.value; // Only save checked value
+                // Store in session storage for persistence
+                sessionStorage.setItem(`nsa_form_${input.name}`, input.value);
+            }
+        } else if (input.type === 'checkbox') {
+            // For checkboxes, we need special handling as multiple can be checked
+            if (input.checked) {
+                // If this is a checkbox group (multiple checkboxes with same name)
+                if (document.querySelectorAll(`input[type="checkbox"][name="${input.name}"]`).length > 1) {
+                    if (!formData[input.name]) {
+                        formData[input.name] = [];
+                    }
+                    formData[input.name].push(input.value);
+                    
+                    // Store in session storage - convert array to JSON string
+                    const existingData = sessionStorage.getItem(`nsa_form_${input.name}`);
+                    const dataArray = existingData ? JSON.parse(existingData) : [];
+                    if (!dataArray.includes(input.value)) {
+                        dataArray.push(input.value);
+                    }
+                    sessionStorage.setItem(`nsa_form_${input.name}`, JSON.stringify(dataArray));
+                } else {
+                    // Single checkbox
+                    formData[input.name] = input.value;
+                    sessionStorage.setItem(`nsa_form_${input.name}`, input.value);
+                }
+            } else if (document.querySelectorAll(`input[type="checkbox"][name="${input.name}"]`).length === 1) {
+                // Single unchecked checkbox should be null/false
+                formData[input.name] = false;
+                sessionStorage.removeItem(`nsa_form_${input.name}`);
             }
         } else if (input.type === 'file') {
             if (input.files.length > 0 && input.files.length <= 2) {
                 formData[input.name] = input.files[0]; // Save file object
+                // We can't store files in sessionStorage, so we just record that a file was selected
+                sessionStorage.setItem(`nsa_form_${input.name}_selected`, 'true');
             }
         } else {
             formData[input.name] = input.value; // Save text, number, select, etc.
+            // Store in session storage
+            sessionStorage.setItem(`nsa_form_${input.name}`, input.value);
         }
     });
 }
@@ -303,43 +462,50 @@ function setupEmailStep() {
     if (category === 'current-msu') {
         // MSU members must use MSU email
         emailHTML = `
-            <label for="msu-email">MSU Email Address *</label>
-            <input type="email" id="msu-email" name="email" required pattern=".*@msstate\\.edu$">
-            <p class="field-info">Must be a valid @msstate.edu email address</p>
-            <div id="verification-section" class="hidden">
-                <label for="verification-code">Verification Code *</label>
-                <input type="text" id="verification-code" name="verificationCode" required>
-                <button type="button" id="send-verification" class="btn-secondary">Send Verification Code</button>
+            <div class="form-group">
+                <label for="msu-email">MSU Email Address *</label>
+                <input type="email" id="msu-email" name="email" required 
+                    pattern="^[\\w.%+-]+@msstate\\.edu$">
+                <p class="field-info">Must be a valid @msstate.edu email address</p>
+                <div id="verification-section" class="hidden">
+                    <label for="verification-code">Verification Code *</label>
+                    <input type="text" id="verification-code" name="verificationCode">
+                    <button type="button" id="send-verification" class="btn-secondary">Send Verification Code</button>
+                </div>
             </div>
         `;
     } else if (category === 'alumni') {
         // Alumni can choose MSU or personal email
         emailHTML = `
-            <div class="radio-group">
-                <label class="radio-label">
-                    <input type="radio" name="emailType" value="msu" required>
-                    <span class="radio-custom"></span>
-                    Use MSU Email (@msstate.edu)
-                </label>
-                <label class="radio-label">
-                    <input type="radio" name="emailType" value="personal" required>
-                    <span class="radio-custom"></span>
-                    Use Personal Email
-                </label>
+            <div class="form-group">
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="emailType" value="msu" required>
+                        <span class="radio-custom"></span>
+                        Use MSU Email (@msstate.edu)
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="emailType" value="personal" required>
+                        <span class="radio-custom"></span>
+                        Use Personal Email
+                    </label>
+                </div>
             </div>
-            <div id="email-input-section">
+            <div id="email-input-section" class="form-group">
                 <!-- Email input will be added dynamically -->
             </div>
         `;
     } else if (category === 'others') {
         // Others can use any email
         emailHTML = `
-            <label for="email">Email Address *</label>
-            <input type="email" id="email" name="email" required>
-            <div id="verification-section" class="hidden">
-                <label for="verification-code">Verification Code *</label>
-                <input type="text" id="verification-code" name="verificationCode" required>
-                <button type="button" id="send-verification" class="btn-secondary">Send Verification Code</button>
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required>
+                <div id="verification-section" class="hidden">
+                    <label for="verification-code">Verification Code *</label>
+                    <input type="text" id="verification-code" name="verificationCode">
+                    <button type="button" id="send-verification" class="btn-secondary">Send Verification Code</button>
+                </div>
             </div>
         `;
     }
@@ -349,11 +515,32 @@ function setupEmailStep() {
     // --- Add event listeners for alumni email type selection ---
     if (category === 'alumni') {
         const emailTypeRadios = document.querySelectorAll('input[name="emailType"]');
+        
+        // Check if we have saved data
+        const savedEmailType = sessionStorage.getItem('nsa_form_emailType');
+        if (savedEmailType) {
+            // Check the appropriate radio button
+            emailTypeRadios.forEach(radio => {
+                if (radio.value === savedEmailType) {
+                    radio.checked = true;
+                    setupEmailInput(savedEmailType); // Render correct input
+                }
+            });
+        }
+        
+        // Add change listeners
         emailTypeRadios.forEach(radio => {
             radio.addEventListener('change', function() {
                 setupEmailInput(this.value); // Render correct input
             });
         });
+    }
+    
+    // Restore saved email if it exists
+    const savedEmail = sessionStorage.getItem('nsa_form_email');
+    if (savedEmail && (document.getElementById('email') || document.getElementById('msu-email'))) {
+        const emailInput = document.getElementById('email') || document.getElementById('msu-email');
+        emailInput.value = savedEmail;
     }
 }
 
@@ -364,19 +551,30 @@ function setupEmailInput(emailType) {
 
     if (emailType === 'msu') {
         inputHTML = `
-            <label for="email">MSU Email Address *</label>
-            <input type="email" id="email" name="email" required pattern=".*@msstate\\.edu$">
-            <p class="field-info">Must be a valid @msstate.edu email address</p>
+            <div class="form-group">
+                <label for="email">MSU Email Address *</label>
+                <input type="email" id="email" name="email" required 
+                    pattern="^[\\w.%+-]+@msstate\\.edu$">
+                <p class="field-info">Must be a valid @msstate.edu email address</p>
+            </div>
         `;
     } else {
         inputHTML = `
-            <label for="email">Personal Email Address *</label>
-            <input type="email" id="email" name="email" required>
-            <p class="field-info">Your registration will be pending manual verification</p>
+            <div class="form-group">
+                <label for="email">Personal Email Address *</label>
+                <input type="email" id="email" name="email" required>
+                <p class="field-info">Your registration will be pending manual verification</p>
+            </div>
         `;
     }
 
     emailInputSection.innerHTML = inputHTML;
+    
+    // Restore saved email if it exists
+    const savedEmail = sessionStorage.getItem('nsa_form_email');
+    if (savedEmail && document.getElementById('email')) {
+        document.getElementById('email').value = savedEmail;
+    }
 }
 
 
@@ -703,15 +901,110 @@ function getMembershipTypeLabel(type) {
 // ===================== Registration Submission =====================
 // Simulates sending registration data to a backend and resets the form.
 function submitRegistration() {
-    // Show a success message (replace with backend call as needed)
-    alert('Registration submitted successfully! You will receive a confirmation email shortly.');
-    // Reset form and return to home
-    document.getElementById('registration-container').classList.add('hidden');
-    document.getElementById('main-content').style.display = 'block';
-    document.getElementById('nsa-registration-form').reset();
-    currentStep = 1;
-    console.log(formData);
-    formData = {};
+    try {
+        // Log the data (for debugging and demo purposes)
+        console.log('Submitting registration data:', formData);
+        
+        // Show a success message (replace with backend call as needed)
+        alert('Registration submitted successfully! You will receive a confirmation email shortly.');
+        
+        // Clear all saved form data
+        clearSavedFormData();
+        
+        // Reset form and return to home
+        document.getElementById('registration-container').classList.add('hidden');
+        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('main-content').classList.add('immediate-show'); 
+        
+        // Reset the form
+        const form = document.getElementById('nsa-registration-form');
+        if (form) {
+            form.reset();
+        }
+        
+        // Reset the current step and form data
+        currentStep = 1;
+        formData = {};
+        
+        return true; // Successfully submitted
+    } catch (error) {
+        console.error('Error submitting registration:', error);
+        alert('There was a problem submitting your registration. Please try again.');
+        return false; // Submission failed
+    }
+}
+
+
+// ===================== Load Saved Form Data =====================
+// Loads previously saved form data from sessionStorage into the form
+function loadSavedFormData() {
+    const currentStepEl = document.getElementById(`step-${currentStep}`);
+    const inputs = currentStepEl.querySelectorAll('input, select, textarea');
+    
+    inputs.forEach(input => {
+        const fieldName = input.name;
+        if (!fieldName) return; // Skip inputs without name attribute
+        
+        const savedValue = sessionStorage.getItem(`nsa_form_${fieldName}`);
+        
+        if (savedValue) {
+            if (input.type === 'radio' || input.type === 'checkbox') {
+                // For radio/checkbox, check if this option was selected
+                if (input.type === 'checkbox' && savedValue.startsWith('[')) {
+                    // Handle checkbox groups (stored as JSON array)
+                    try {
+                        const valueArray = JSON.parse(savedValue);
+                        if (valueArray.includes(input.value)) {
+                            input.checked = true;
+                        }
+                    } catch (e) {
+                        console.error('Error parsing saved checkbox data', e);
+                    }
+                } else if (input.value === savedValue) {
+                    input.checked = true;
+                    
+                    // For radio buttons that trigger other UI changes
+                    if (fieldName === 'category' && currentStep === 1) {
+                        // We'll need to handle category changes later
+                        formData[fieldName] = savedValue;
+                    } else if (fieldName === 'membershipType' && input.value === 'active') {
+                        // Show payment section if active membership was selected
+                        const paymentSection = document.getElementById('payment-section');
+                        if (paymentSection) {
+                            paymentSection.classList.remove('hidden');
+                            const paymentProof = document.getElementById('payment-proof');
+                            if (paymentProof) {
+                                paymentProof.setAttribute('required', 'required');
+                            }
+                        }
+                    }
+                }
+            } else if (input.type !== 'file') { // Can't restore file inputs
+                input.value = savedValue;
+                
+                // Add to formData for any dynamic UI that depends on this
+                formData[fieldName] = savedValue;
+            }
+        }
+    });
+}
+
+// ===================== Clear Form Data =====================
+// Clears all saved form data from sessionStorage
+function clearSavedFormData() {
+    // Get all keys that start with nsa_form_
+    const keysToRemove = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && key.startsWith('nsa_form_')) {
+            keysToRemove.push(key);
+        }
+    }
+    
+    // Remove each key
+    keysToRemove.forEach(key => {
+        sessionStorage.removeItem(key);
+    });
 }
 // ===================== END OF SCRIPT =====================
 
