@@ -1,0 +1,214 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+:root {
+    --primary-color: #00ffcc;
+    --accent-color: #cf8080;
+    --success-color: #28a745;
+    --danger-color: #ff6b6b;
+    --bg-dark: #0f0f0f;
+    --bg-form: #1c1c1c;
+    --input-bg: #2a2a2a;
+    --border-color: #333;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-dark);
+    color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+.nsa-animation {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--accent-color);
+    opacity: 0;
+    transform: translateY(40px);
+    animation: fadeSlideUp 1.5s ease-out forwards;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 2rem;
+    transition: opacity 0.5s ease-out;
+}
+
+.nsa-animation::after {
+    content: '';
+    display: block;
+    height: 4px;
+    background: var(--primary-color);
+    width: 0%;
+    animation: underlineGrow 1.5s ease-out 1s forwards;
+}
+
+@keyframes fadeSlideUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes underlineGrow {
+    to {
+        width: 100%;
+    }
+}
+
+.form-container {
+    background: var(--bg-form);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+    max-width: 600px;
+    width: 100%;
+}
+
+.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.show {
+    opacity: 1;
+    transition: opacity 0.5s ease-in;
+}
+
+.form-container.hidden {
+    display: none;
+}
+
+h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="file"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    color: #fff;
+}
+
+input::placeholder {
+    color: #aaa;
+}
+
+.radio-group,
+.checkbox-group {
+    margin-top: 10px;
+}
+
+.radio-group label,
+.checkbox-group label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-color);
+    color: #0f0f0f;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #29c2a6;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .form-container {
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 1.4rem;
+    }
+}
+
+
+.form-page {
+    display: none;
+}
+
+.form-page.active {
+    display: block;
+}
+
+.form-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+button {
+    width: 48%;
+}
+
+.success-message {
+    color: var(--success-color);
+    font-size: 0.95rem;
+    margin-top: 10px;
+}
+
+#summaryBox {
+    background: #2a2a2a;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-size: 0.95rem;
+    color: #eaeaea;
+    border: 1px solid #333;
+    white-space: pre-wrap;
+}
+
+/* Optional: Separate Home button style */
+#toHomeBtn {
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+#toHomeBtn:hover {
+    background: var(--primary-color);
+    color: #000;
+}
+
+/* Update show/hide if needed */
+.hidden {
+    display: none;
+}

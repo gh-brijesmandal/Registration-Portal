@@ -2,13 +2,113 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="registration.css" />
 </head>
 
 <body>
+    <!-- Animation -->
+    <div class="nsa-animation">Registration Form</div>
 
+    <!-- Multi-Section Form -->
+    <div class="form-container hidden">
+
+        <form id="registrationForm">
+
+            <!-- PAGE 1: Email Verification -->
+            <section class="form-page active" id="page1">
+                <h2>NSA Member Registration</h2>
+
+                <label for="fullName">Full Legal Name</label>
+                <input type="text" id="fullName" placeholder="Enter you full legal name" required>
+
+                <label for="category">Category</label>
+                <select id="category" required>
+                    <option value="">-- Select Category --</option>
+                    <option value="current">Current MSU Student / Staff / Faculty</option>
+                    <option value="alumni">MSU Alumni</option>
+                    <option value="others">Others</option>
+                </select>
+
+                <label for="email">Email: </label>
+                <input type="email" id="email" placeholder="email@msstate.edu" required>
+
+                <button type="button" id="sendCodeBtn">Send Verification Code</button>
+
+                <div id="verifyGroup" class="hidden">
+                    <label for="verifyCode">Enter Code</label>
+                    <input type="number" id="verifyCode" placeholder="XXXXXX" />
+                    <p class="success-message hidden" id="verifiedMsg">Email Verified ✅</p>
+                </div>
+
+                <div class="form-nav">
+                    <button type="button" id="toHomeBtn">← Home</button>
+                    <button type="button" id="next1" class="hidden">Next →</button>
+                </div>
+            </section>
+
+            <!-- PAGE 2: Category-Dependent Info -->
+            <section class="form-page" id="page2">
+                <h2>NSA Registration</h2>
+
+                <div id="conditionalFields">
+                    <!-- JS will inject: Major, Graduation Date, etc. -->
+                </div>
+
+                <div class="form-nav">
+                    <button type="button" id="back1">← Previous</button>
+                    <button type="button" id="next2">Next →</button>
+                </div>
+            </section>
+
+            <!-- PAGE 3: Membership + Payment -->
+            <section class="form-page" id="page3">
+                <h2>NSA Registration – Step 3</h2>
+
+                <label for="memberType">Membership Type</label>
+                <select id="memberType" required>
+                    <option value="">-- Select Type --</option>
+                    <option value="active">Active Member (Paid)</option>
+                    <option value="passive">Passive Member (Free)</option>
+                </select>
+
+                <div id="paymentUploadSection" class="hidden">
+                    <label for="paymentProof">Upload Proof of Payment (PDF, JPG, PNG)</label>
+                    <input type="file" id="paymentProof" accept=".pdf,.jpg,.jpeg,.png" />
+                </div>
+
+                <div class="form-nav">
+                    <button type="button" id="back2">← Previous</button>
+                    <button type="button" id="next3">Next →</button>
+                </div>
+            </section>
+
+            <!-- PAGE 4: Summary + Agreements -->
+            <section class="form-page" id="page4">
+                <h2>Review & Confirm</h2>
+
+                <div id="summaryBox">
+                    <!-- Summary info injected by JS -->
+                </div>
+
+                <div class="checkbox-group">
+                    <label><input type="checkbox" required> I agree to comply with MSU policies.</label>
+                    <label><input type="checkbox" required> I agree to NSA's Constitution and Code of Conduct.</label>
+                </div>
+
+                <div class="form-nav">
+                    <button type="button" id="back3">← Previous</button>
+                    <button type="button" id="restartBtn">⟲ Start Over</button>
+                    <button type="submit">Submit</button>
+                </div>
+            </section>
+
+        </form>
+    </div>
+
+    <script src="registration.js"></script>
 </body>
 
 </html>
