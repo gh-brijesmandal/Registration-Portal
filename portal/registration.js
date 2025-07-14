@@ -65,6 +65,7 @@ form.reset();
 
 // First page verification and email sending logic
 sendCodeBtn.addEventListener("click", () => {
+  emailInput.removeAttribute("readonly");
   const email = emailInput.value.trim();
   let name = document.getElementById("fullName").value.trim();
   const category = document.getElementById("category").value;
@@ -74,6 +75,11 @@ sendCodeBtn.addEventListener("click", () => {
       showCustomAlert("Please enter a valid email");
       // clicking ok button automatically closes the custom alert, coded in the 
       return NaN;
+    }
+    else if (email === "@msstate.edu" || email === "@gmail.com")
+    {
+        showCustomAlert("Enter a valid address, dude!");
+        return NaN;
     }
   else if (name === "" || category === "") {
       showCustomAlert("Please enter all the details.")
@@ -112,10 +118,15 @@ sendCodeBtn.addEventListener("click", () => {
   verifyCodeInput.addEventListener("input", () => {
     if (verifyCodeInput.value.trim() === "123456") {
       verifiedMsg.classList.remove("hidden");
+      verifiedMsg.style.color = "#28a745";
+      verifiedMsg.textContent = "Email Verified";
       next1.classList.remove("hidden");
+      emailInput.setAttribute("readonly","true");
     } else {
-      verifiedMsg.classList.add("hidden");
+      verifiedMsg.classList.remove("hidden");
       next1.classList.add("hidden");
+      verifiedMsg.style.color = "#ff6b6b";
+      verifiedMsg.textContent = "Wrong Code";
     }
   });
 
@@ -160,24 +171,42 @@ sendCodeBtn.addEventListener("click", () => {
     text += `Category: ${category}\n`;
     text += `Membership: ${memberType}\n`;
 
+    /*
+
+
+    NEED TO ADD SOME ADDITIONAL DETAILS
+
+
+
+    */
+
     // More fields can be appended here from dynamic inputs
     summaryBox.textContent = text;
   }
 
 
 
-  // default first page
+  // default first page, 
   function defaultLanding() 
   {
     verifyGroup.classList.add("hidden");
+    next1.classList.add("hidden");
   }
 
 
   // 🟢 Final Submit
   form.addEventListener("submit", (e) => {
     e.preventDefault();
+    // tell the user that the form submission was successful.
+    showCustomAlert("Form submitted successfully!");
+    console.log("Form Submitted Successfully");
+    // read in form data and display it to the console
+    formData["name"] = document.getElementById("fullName").value.trim();
+    formData["email"] = emailInput.value.trim();
+    formData["category"] = document.getElementById("category").value;
+    formData["member"] = memberTypeSelect.value;
+    console.log(formData);
     form.reset();
     showPage(0);
-    showCustomAlert("Form submitted successfully!");
     defaultLanding();
   });
