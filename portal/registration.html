@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Registration Form</title>
+    <title>🇳🇵 Registration Form</title>
     <link rel="stylesheet" href="registration.css" />
 </head>
 
@@ -12,20 +12,29 @@
     <!-- Animation -->
     <div class="nsa-animation">Registration Form</div>
 
+    <!-- Custom Alert-->
+    <div id="customAlert">
+        <div class="alert-box">
+            <p id="alertMessage">This is a custom alert</p>
+            <button onclick="closeCustomAlert()">OK</button>
+        </div>
+    </div>
+
+
     <!-- Multi-Section Form -->
     <div class="form-container hidden">
 
-        <form id="registrationForm">
+        <form id="registrationForm" method="POST" action="/submit_registration">
 
             <!-- PAGE 1: Email Verification -->
             <section class="form-page active" id="page1">
                 <h2>NSA Member Registration</h2>
 
                 <label for="fullName">Full Legal Name</label>
-                <input type="text" id="fullName" placeholder="Enter you full legal name" required>
+                <input type="text" id="fullName" placeholder="Enter you full legal name" name="fullName" required>
 
                 <label for="category">Category</label>
-                <select id="category" required>
+                <select id="category" name="Category of Member" required>
                     <option value="">-- Select Category --</option>
                     <option value="current">Current MSU Student / Staff / Faculty</option>
                     <option value="alumni">MSU Alumni</option>
@@ -33,7 +42,7 @@
                 </select>
 
                 <label for="email">Email: </label>
-                <input type="email" id="email" placeholder="email@msstate.edu" required>
+                <input type="email" id="email" placeholder="example@msstate.edu" name="email" required>
 
                 <button type="button" id="sendCodeBtn">Send Verification Code</button>
 
@@ -65,7 +74,7 @@
 
             <!-- PAGE 3: Membership + Payment -->
             <section class="form-page" id="page3">
-                <h2>NSA Registration – Step 3</h2>
+                <h2>NSA Registration</h2>
 
                 <label for="memberType">Membership Type</label>
                 <select id="memberType" required>
@@ -94,13 +103,16 @@
                 </div>
 
                 <div class="checkbox-group">
-                    <label><input type="checkbox" required> I agree to comply with MSU policies.</label>
-                    <label><input type="checkbox" required> I agree to NSA's Constitution and Code of Conduct.</label>
+                    <label><input type="checkbox" required> I agree to comply with <a
+                            href="https://github.com/saphal-upreti/nsamsstate-ConstituitionBylaws" target="_blank">MSU
+                            policies.</a></label>
+                    <label><input type="checkbox" required> I agree to <a
+                            href="https://github.com/saphal-upreti/nsamsstate-ConstituitionBylaws" target="_blank">NSA's
+                            Constitution and Code of Conduct.</a></label>
                 </div>
 
                 <div class="form-nav">
                     <button type="button" id="back3">← Previous</button>
-                    <button type="button" id="restartBtn">⟲ Start Over</button>
                     <button type="submit">Submit</button>
                 </div>
             </section>
