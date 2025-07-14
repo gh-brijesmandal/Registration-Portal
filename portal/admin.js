@@ -23,12 +23,12 @@ else
     container.classList.add("show");
 }
 
+console.log("K herira bhai, yo admin panel ho. admin vako bhaye console ma aaudeina thiyeu.");
 // back to home logic
-
 if (backButton)
 {
     document.getElementById("backButton").addEventListener("click", () => {
-        window.location.href = "index.html";
+        window.location.href = "index.html";   // goes in the form of navigate by the button, so intro animation shows up.
     });
 }
 

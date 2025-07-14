@@ -1,6 +1,29 @@
+// animations logic
+
+if (performance.getEntriesByType("navigation")[0].type === "navigate")
+{
 document.addEventListener("DOMContentLoaded", () => {
   const animation = document.querySelector(".nsa-animation");
-  const formContainer = document.querySelector(".form-container");
+  const formContainer = document.querySelector(".form-container");  // default hidden
+
+  setTimeout(() => {
+    animation.classList.add("hide");
+    setTimeout(() => {
+      animation.style.display = "none";
+      formContainer.classList.remove("hidden");
+    }, 500);
+  }, 2500);
+});
+}
+else 
+{
+    const animation = document.querySelector(".nsa-animation");
+    const formContainer = document.querySelector(".form-container");  // default hidden
+
+    animation.classList.add("hidden");
+    formContainer.classList.remove("hidden");
+    formContainer.classList.add("show");
+}
 
   const pages = document.querySelectorAll(".form-page");
   let currentPage = 0;
@@ -29,14 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const form = document.getElementById("registrationForm");
 
-  // 🟢 Step 0: Intro animation
-  setTimeout(() => {
-    animation.classList.add("hide");
-    setTimeout(() => {
-      animation.style.display = "none";
-      formContainer.classList.remove("hidden");
-    }, 500);
-  }, 2500);
+
 
   // 🟢 Email verification (simulate)
   sendCodeBtn.addEventListener("click", () => {
@@ -110,4 +126,3 @@ document.addEventListener("DOMContentLoaded", () => {
     showPage(0);
     location.reload(); // Refresh to restart animation if needed
   });
-});
