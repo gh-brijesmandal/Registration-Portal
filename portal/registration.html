@@ -24,7 +24,7 @@
     <!-- Multi-Section Form -->
     <div class="form-container hidden">
 
-        <form id="registrationForm" method="POST" action="/submit_registration">
+        <form id="registrationForm" method="POST" action="/portal/index.html">
 
             <!-- PAGE 1: Email Verification -->
             <section class="form-page active" id="page1">
@@ -75,11 +75,15 @@
             <!-- PAGE 3: Membership + Payment -->
             <section class="form-page" id="page3">
                 <h2>NSA Registration</h2>
+                <label for="enrolled-date">
+                    Enrolled Date: </label>
+                <input type="text" id="enrolled-date" name="enrolled-date"
+                    placeholder="Enter the name of the semester you paid for NSA (Fall/Spring/Summer)" required>
 
                 <label for="memberType">Membership Type</label>
                 <select id="memberType" required>
                     <option value="">-- Select Type --</option>
-                    <option value="active">Active Member (Paid)</option>
+                    <option value="active">Active Member (Fee Paid)</option>
                     <option value="passive">Passive Member (Free)</option>
                 </select>
 

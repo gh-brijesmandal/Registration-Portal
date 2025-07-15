@@ -24,6 +24,7 @@ else
     formContainer.classList.add("show");
 }
 
+let fees = 0;  // used later for calculating fees
 let formData = {};
 const pages = document.querySelectorAll(".form-page");   // current page being displayed, array
 let currentPage = 0;
@@ -198,6 +199,7 @@ sendCodeBtn.addEventListener("click", () => {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     // tell the user that the form submission was successful.
+    form.submit();
     showCustomAlert("Form submitted successfully!");
     console.log("Form Submitted Successfully");
     // read in form data and display it to the console
@@ -210,3 +212,155 @@ sendCodeBtn.addEventListener("click", () => {
     showPage(0);
     defaultLanding();
   });
+
+
+
+// membership fee
+const enrolledDate = document.getElementById("enrolled-date");
+
+enrolledDate.addEventListener("change", () => {
+  const date = enrolledDate.value.trim().toLowerCase(); // FIXED: lowercase -> lowerCase
+  console.log("Entered Date:", date);
+
+
+  if (date === "fall") {
+       fees = 25;
+       console.log("Membership Fee: $" + fees);
+       document.getElementById("memberType").options[1].text = "Active Member (Fee Paid: ($" + fees + "))";
+  } else if (date === "spring") {
+        fees = 15;
+        console.log("Membership Fee: $" + fees);
+        document.getElementById("memberType").options[1].text = "Active Member (Fee Paid: ($" + fees + "))"; 
+  } else if (date === "summer") {
+        fees = 5;
+        next3.classList.remove("hidden"); 
+        console.log("Membership Fee: $" + fees);
+        document.getElementById("memberType").options[1].text = "Active Member (Fee Paid: ($" + fees + "))";
+  } else {
+    showCustomAlert("Enter either Fall, Spring, or Summer.");
+    return NaN;
+  }
+
+});
+
+
+
+
+
+
+// section 2 logic
+
+const conditionalFields = document.getElementById("conditionalFields");
+
+next1.addEventListener("click", () => {
+  // Store the selected category
+  formData["category"] = document.getElementById("category").value;
+  showPage(1);
+  loadConditionalFields(formData["category"]);
+});
+
+function loadConditionalFields(category) {
+  conditionalFields.innerHTML = ""; // Clear old content
+
+  if (category === "current") {
+    const roleSelect = document.createElement("select");
+    roleSelect.innerHTML = `
+      <option value="">-- Are you a student or staff/faculty? --</option>
+      <option value="student">Student</option>
+      <option value="staff">Staff/Faculty</option>
+    `;
+    roleSelect.required = true;
+    roleSelect.id = "currentRole";
+    roleSelect.name = "currentRole";
+    conditionalFields.appendChild(labelElement("Your Role"));
+    conditionalFields.appendChild(roleSelect);
+
+    roleSelect.addEventListener("change", () => {
+      const role = roleSelect.value;
+      addFieldsForCurrent(role);
+    });
+
+  } else if (category === "alumni") {
+    addAlumniFields();
+
+  } else if (category === "others") {
+    addOthersFields();
+  }
+}
+
+// functions to make elements instantly instead of doing them one by one.
+function labelElement(text) {
+  const label = document.createElement("label");
+  label.textContent = text;
+  return label;
+}
+
+function inputElement(type, id, placeholder) {
+  const input = document.createElement("input");
+  input.type = type;
+  input.id = id;
+  input.name = id;
+  input.placeholder = placeholder;
+  input.required = true;
+  return input;
+}
+
+
+// dynamic field additions for just student or child
+function addFieldsForCurrent(role) {
+  const extraFields = document.createElement("div");
+  extraFields.id = "extraCurrentFields";
+  const existing = document.getElementById("extraCurrentFields");
+  if (existing) existing.remove();
+
+  if (role === "student") {
+    extraFields.appendChild(labelElement("Major"));
+    extraFields.appendChild(inputElement("text", "major", "Enter your major"));
+
+    extraFields.appendChild(labelElement("Degree Level"));
+    extraFields.appendChild(inputElement("text", "degreeLevel", "Bachelor's/Master's/PhD"));
+
+    extraFields.appendChild(labelElement("Start Date"));
+    extraFields.appendChild(inputElement("date", "startDate", "Enter start date"));
+
+    extraFields.appendChild(labelElement("Expected Graduation Date"));
+    extraFields.appendChild(inputElement("date", "endDate", "Enter expected end date"));
+
+  } else if (role === "staff") {
+    extraFields.appendChild(labelElement("Office / Department"));
+    extraFields.appendChild(inputElement("text", "department", "Enter office or department"));
+
+    extraFields.appendChild(labelElement("Position"));
+    extraFields.appendChild(inputElement("text", "position", "Enter your job title"));
+
+    extraFields.appendChild(labelElement("Years at MSU"));
+    extraFields.appendChild(inputElement("number", "years", "How many years at MSU?"));
+  }
+
+  conditionalFields.appendChild(extraFields);
+}
+
+function addAlumniFields() {
+  conditionalFields.appendChild(labelElement("Major"));
+  conditionalFields.appendChild(inputElement("text", "major", "Enter your major"));
+
+  conditionalFields.appendChild(labelElement("Degree Level"));
+  conditionalFields.appendChild(inputElement("text", "degreeLevel", "Bachelor's/Master's/PhD"));
+
+  conditionalFields.appendChild(labelElement("Start Date"));
+  conditionalFields.appendChild(inputElement("date", "startDate", "Enter start date"));
+
+  conditionalFields.appendChild(labelElement("Graduation Date"));
+  conditionalFields.appendChild(inputElement("date", "endDate", "Enter graduation date"));
+
+  conditionalFields.appendChild(labelElement("Current Job / Position"));
+  conditionalFields.appendChild(inputElement("text", "currentJob", "Where are you working now?"));
+}
+
+function addOthersFields() {
+  conditionalFields.appendChild(labelElement("How are you affiliated with MSU?"));
+  conditionalFields.appendChild(inputElement("text", "affiliation", "Enter your answer"));
+
+  conditionalFields.appendChild(labelElement("What do you hope to gain from NSA events?"));
+  conditionalFields.appendChild(inputElement("text", "expectations", "Enter your response"));
+}
