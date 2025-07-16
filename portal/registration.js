@@ -176,7 +176,7 @@ sendCodeBtn.addEventListener("click", () => {
 
 
     NEED TO ADD SOME ADDITIONAL DETAILS
-
+    Will add later according to the requirements
 
 
     */
