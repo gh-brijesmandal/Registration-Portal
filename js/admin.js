@@ -24,11 +24,12 @@ else
 }
 
 console.log("K herira bhai, yo admin panel ho. admin vako bhaye console ma aaudeina thiyeu.");
+console.log("Randi sala, banena ta admin panel, muji her aaba");
 // back to home logic
 if (backButton)
 {
     document.getElementById("backButton").addEventListener("click", () => {
-        window.location.href = "index.html";   // goes in the form of navigate by the button, so intro animation shows up.
+    window.location.href = "/index.html";   // goes in the form of navigate by the button, so intro animation shows up.
     });
 }
 
@@ -50,7 +51,7 @@ document.getElementById("adminLoginForm").addEventListener("submit", function (e
         // success
         status.textContent = "Login Success!";
         status.style.color = "#28a745";
-        window.open("admin-dashboard.html","_blank");                                     // Open the admin dashboard
+    window.open("/admin-dashboard.html","_blank");                                     // Open the admin dashboard
     } else {
         // failure
         status.textContent = "Invalid email or password.";

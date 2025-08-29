@@ -108,6 +108,7 @@ input[type="text"],
 input[type="email"],
 input[type="file"],
 input[type="number"],
+input[type="date"],
 select {
     width: 100%;
     padding: 10px;
@@ -119,6 +120,21 @@ select {
 
 input::placeholder {
     color: #aaa;
+}
+
+/* Custom styles for date input */
+input[type="date"] {
+    color-scheme: dark; /* Helps with the calendar popup theme */
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(80%) sepia(100%) saturate(300%) hue-rotate(95deg); /* Match primary color */
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    filter: invert(90%) sepia(100%) saturate(500%) hue-rotate(95deg); /* Brighter on hover */
 }
 
 .radio-group,
@@ -270,4 +286,94 @@ button {
 a {
     text-decoration: none;
     color: var(--accent-color);
+}
+
+/* Personal Email Section Styling */
+#personalEmailSection {
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: rgba(0, 255, 204, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+#personalEmailSection.hidden {
+    display: none;
+}
+
+#personalEmailSection .info-text {
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    margin-top: 0.5rem;
+    font-style: italic;
+}
+
+#personalEmail {
+    margin-top: 0.5rem;
+}
+
+/* Enrolled date section styling */
+.enrolled-date-section {
+    transition: opacity 0.3s ease;
+}
+
+.enrolled-date-section[style*="display: none"] {
+    display: none !important;
+}
+
+/* Auto-selected membership type styling */
+#memberType[style*="display: none"] + .auto-membership-display {
+    display: block;
+    background: var(--input-bg);
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    text-align: center;
+}
+
+.membership-auto-selected {
+    background: var(--input-bg) !important;
+    border: 2px solid var(--primary-color) !important;
+    color: var(--primary-color) !important;
+    pointer-events: none;
+}
+
+.membership-auto-selected::after {
+    content: " (Auto-selected)";
+    font-size: 0.8rem;
+    color: var(--success-color);
+    font-weight: normal;
+}
+
+/* Membership Cycle Information Styles */
+.membership-info {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.membership-info p {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.membership-info strong {
+    color: var(--primary-color);
+}
+
+.membership-info span {
+    color: #f0f0f0;
+    font-weight: normal;
+}
+
+.membership-info #membershipFee {
+    color: var(--accent-color);
+    font-weight: 600;
 }

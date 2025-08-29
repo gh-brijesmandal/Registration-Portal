@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>🇳🇵 Registration Form</title>
-    <link rel="stylesheet" href="registration.css" />
+    <link rel="stylesheet" href="/css/registration.css" />
 </head>
 
 <body>
@@ -24,7 +24,8 @@
     <!-- Multi-Section Form -->
     <div class="form-container hidden">
 
-        <form id="registrationForm" method="POST" action="/portal/index.html" target="_blank">
+        <!-- Added novalidate to prevent native validation errors on hidden multi-step fields (e.g., 'years' not focusable) -->
+        <form id="registrationForm" method="POST" action="/register" target="_blank" novalidate>
             <!--Will change this later-->
 
             <!-- PAGE 1: Email Verification -->
@@ -42,8 +43,18 @@
                     <option value="others">Others</option>
                 </select>
 
+                <label for="phone">Phone Number</label>
+                <input type="text" id="phone" type="number" name="phone" placeholder="Enter your phone number" required>
+
                 <label for="email">Email: </label>
-                <input type="email" id="email" placeholder="Enter your email here" name="email" required>
+                <input type="email" id="email" pattern=".+@msstate\.edu" placeholder="Enter your email here"
+                    name="email" required>
+
+                <div id="personalEmailSection" class="hidden">
+                    <label for="personalEmail">Personal Email:</label>
+                    <input type="email" id="personalEmail" placeholder="Enter your personal email" name="personalEmail">
+                    <p class="info-text">Note: Verification will still be sent to your MSU email above.</p>
+                </div>
 
                 <button type="button" id="sendCodeBtn">Send Verification Code</button>
 
@@ -77,9 +88,14 @@
             <section class="form-page" id="page3">
                 <h2>NSA Registration</h2>
                 <label for="enrolled-date">
-                    Enrolled Date: </label>
-                <input type="text" id="enrolled-date" name="enrolled-date"
-                    placeholder="Enter the name of the semester you paid for NSA (Fall/Spring/Summer)" required>
+                    Enrollment Date: </label>
+                <input type="date" id="enrolled-date" name="enrolled-date" required>
+
+                <div id="membershipCycleInfo" class="membership-info hidden">
+                    <p><strong>Membership Cycle:</strong> <span id="cycleType"></span></p>
+                    <p><strong>Expires:</strong> <span id="expiryDate"></span></p>
+                    <p><strong>Fee:</strong> <span id="membershipFee"></span></p>
+                </div>
 
                 <label for="memberType">Membership Type</label>
                 <select id="memberType" required>
@@ -125,7 +141,7 @@
         </form>
     </div>
 
-    <script src="registration.js"></script>
+    <script src="/js/registration.js"></script>
 </body>
 
 </html>
