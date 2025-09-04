@@ -183,35 +183,35 @@ app.post('/send-verification-code', async (req, res) => {
     return res.status(400).json({ error: 'Email is required' });
   }
 
-  // Generate a 6-digit verification code
-  const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+//   // Generate a 6-digit verification code
+//   const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // Create a Nodemailer transporter using your email service details
-  // IMPORTANT: Replace with your actual email service credentials
-  const transporter = nodemailer.createTransporter({
-    service: 'gmail', // e.g., 'gmail', 'outlook', or a custom SMTP server
-    auth: {
-      user: 'deeprodeveloper@gmail.com', // Your email address
-      pass: 'prodeveloper01'   // Your email password or app-specific password
-    }
+//   // Create a Nodemailer transporter using your email service details
+//   // IMPORTANT: Replace with your actual email service credentials
+//   const transporter = nodemailer.createTransporter({
+//     service: 'gmail', // e.g., 'gmail', 'outlook', or a custom SMTP server
+//     auth: {
+//       user: '', // Your email address
+//       pass: ''   // Your email password or app-specific password
+//     }
+//   });
+
+//   const mailOptions = {
+//     from: 'deeprodeveloper@gmail.com', // Sender address
+//     to: email,                       // Recipient address
+//     subject: 'Your Verification Code',
+//     html: `<p>Your verification code is: <b>${verificationCode}</b></p>`
+//   };
+
+//   try {
+//     await transporter.sendMail(mailOptions);
+//     console.log(`Verification code sent to ${email}: ${verificationCode}`);
+//     res.json({ success: true, message: 'Verification code sent successfully!' });
+//   } catch (error) {
+//     console.error('Error sending verification email:', error);
+//     res.status(500).json({ success: false, error: 'Failed to send verification code.' });
+//   }
   });
-
-  const mailOptions = {
-    from: 'deeprodeveloper@gmail.com', // Sender address
-    to: email,                       // Recipient address
-    subject: 'Your Verification Code',
-    html: `<p>Your verification code is: <b>${verificationCode}</b></p>`
-  };
-
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`Verification code sent to ${email}: ${verificationCode}`);
-    res.json({ success: true, message: 'Verification code sent successfully!' });
-  } catch (error) {
-    console.error('Error sending verification email:', error);
-    res.status(500).json({ success: false, error: 'Failed to send verification code.' });
-  }
-});
 
 // POST /update-status - update registration status
 app.post('/update-status', (req, res) => {

@@ -24,6 +24,8 @@ else
     formContainer.classList.add("show");
 }
 
+const { text } = require('body-parser');
+const nodemailer = require('nodemailer');
 let fees = 0;  // used later for calculating fees
 let formData = {};
 const pages = document.querySelectorAll(".form-page");   // current page being displayed, array
@@ -195,7 +197,34 @@ sendCodeBtn.addEventListener("click", () => {
       {
         console.log("Valid Email for students/ alumni");
           verifyGroup.classList.remove("hidden");
-          showCustomAlert(`Verification code sent to ${email}`);
+              const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const transporter = nodemailer.createTransporter({
+      service: "gmail",
+      auth: {
+        user: "deeprodeveloper@gmail.com",
+        pass: "ukfa imyv xrns abiq"
+      }
+    });
+
+    const mailData = {
+      from: "deeprodeveloper@gmail.com",
+      to: email,
+      subject: 'Verification Code',
+      text: `Your verification code is ${verificationCode}`,
+    }
+
+    transporter.sendMail(mailData,(error,info) => {
+      if (error)
+      {
+        showCustomAlert("Error Occured! Please re-check your email or contact NSA.");
+        return NaN;
+      }
+      else
+      {
+        showCustomAlert("Verification Code has been sent to your email.");
+      }
+    })
+
       }
       else {
         showCustomAlert("The email must end with @msstate.edu for current students/staffs, and alumni.");
@@ -208,7 +237,33 @@ sendCodeBtn.addEventListener("click", () => {
     {
       console.log("Valid Email for others part");
         verifyGroup.classList.remove("hidden");
-        showCustomAlert(`Verification code sent to ${email}`);
+            const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const transporter = nodemailer.createTransporter({
+      service: "gmail",
+      auth: {
+        user: "deeprodeveloper@gmail.com",
+        pass: "ukfa imyv xrns abiq"
+      }
+    });
+
+    const mailData = {
+      from: "deeprodeveloper@gmail.com",
+      to: email,
+      subject: 'Verification Code',
+      text: `Your verification code is ${verificationCode}`,
+    }
+
+    transporter.sendMail(mailData,(error,info) => {
+      if (error)
+      {
+        showCustomAlert("Error Occured! Please re-check your email or contact NSA.");
+        return NaN;
+      }
+      else
+      {
+        showCustomAlert("Verification Code has been sent to your email.");
+      }
+    })
     }
     else 
     {
@@ -220,7 +275,7 @@ sendCodeBtn.addEventListener("click", () => {
 
   // email verification code validation
   verifyCodeInput.addEventListener("input", () => {
-    if (verifyCodeInput.value.trim() === "123456") {
+    if (verifyCodeInput.value.trim() === verificationCode) {
       verifiedMsg.classList.remove("hidden");
       verifiedMsg.style.color = "#28a745";
       verifiedMsg.textContent = "Email Verified";
