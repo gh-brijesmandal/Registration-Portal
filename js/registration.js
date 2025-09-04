@@ -24,8 +24,7 @@ else
     formContainer.classList.add("show");
 }
 
-const { text } = require('body-parser');
-const nodemailer = require('nodemailer');
+// Removed server-only modules (body-parser, nodemailer) - not needed on client
 let fees = 0;  // used later for calculating fees
 let formData = {};
 const pages = document.querySelectorAll(".form-page");   // current page being displayed, array
@@ -57,16 +56,17 @@ const toHomeBtn = document.getElementById("toHomeBtn");
 const emailInput = document.getElementById("email");             // email input
 const personalEmailInput = document.getElementById("personalEmail"); // personal email input
 const personalEmailSection = document.getElementById("personalEmailSection"); // personal email section
-const sendCodeBtn = document.getElementById("sendCodeBtn");      // code send button 
-const verifyGroup = document.getElementById("verifyGroup");      // contains code label, code input, and response message paragraph
-const verifyCodeInput = document.getElementById("verifyCode");  // the input part
-const verifiedMsg = document.getElementById("verifiedMsg");     // the result in p tag
+// Verification UI removed: references cleaned up
 const memberTypeSelect = document.getElementById("memberType");   // active / paid
 const paymentUploadSection = document.getElementById("paymentUploadSection");
 const summaryBox = document.getElementById("summaryBox");
 const form = document.getElementById("registrationForm");
 const categorySelect = document.getElementById("category");
 form.reset();
+// Restore any saved values for page 0 on load
+document.addEventListener('DOMContentLoaded', () => {
+  pages[0].querySelectorAll('input,select,textarea').forEach(restoreValueTo);
+});
 
 // Set today's date as default for enrollment date
 document.addEventListener("DOMContentLoaded", () => {
@@ -101,6 +101,113 @@ categorySelect.addEventListener("change", () => {
     enrolledDateField.dispatchEvent(new Event('change'));
   }
 });
+
+// Helper to check element visibility
+function isVisible(el) {
+  if (!el) return false;
+  return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+}
+
+// Generic page validator: ensures all required, visible controls in the given page index are filled
+function validatePage(index) {
+  const page = pages[index];
+  if (!page) return true; // nothing to validate
+
+  const controls = page.querySelectorAll('input, select, textarea');
+  for (const el of controls) {
+    if (!el.required) continue; // only validate required fields
+    if (!isVisible(el)) continue; // skip hidden controls
+
+    const tag = el.tagName.toLowerCase();
+    const type = (el.type || '').toLowerCase();
+
+    if (type === 'radio') {
+      // ensure at least one radio in the group is checked
+      const group = page.querySelectorAll(`input[type="radio"][name="${el.name}"]`);
+      if (group.length > 0) {
+        const anyChecked = Array.from(group).some(r => r.checked);
+        if (!anyChecked) return false;
+      }
+      continue;
+    }
+
+    if (type === 'checkbox') {
+      if (!el.checked) return false;
+      continue;
+    }
+
+    if (type === 'file') {
+      if (!el.files || el.files.length === 0) return false;
+      continue;
+    }
+
+    if (tag === 'select') {
+      if (!el.value || el.value === '') return false;
+      continue;
+    }
+
+    // text, email, number, date, etc.
+    if (!el.value || (typeof el.value === 'string' && el.value.trim() === '')) return false;
+  }
+
+  return true;
+}
+
+// Capture values from visible controls on a page into formData
+function capturePageValues(index) {
+  const page = pages[index];
+  if (!page) return;
+  const controls = page.querySelectorAll('input, select, textarea');
+  for (const el of controls) {
+    if (!isVisible(el)) continue;
+    const key = el.id || el.name;
+    if (!key) continue;
+
+    const type = (el.type || '').toLowerCase();
+    if (type === 'file') {
+      // can't persist file content; store filename if available
+      formData[key] = el.files && el.files.length > 0 ? el.files[0].name : '';
+      continue;
+    }
+    if (type === 'checkbox') {
+      formData[key] = el.checked;
+      continue;
+    }
+    if (type === 'radio') {
+      const group = page.querySelectorAll(`input[type="radio"][name="${el.name}"]`);
+      if (group.length > 0) {
+        const checked = Array.from(group).find(r => r.checked);
+        formData[el.name] = checked ? checked.value : '';
+      }
+      continue;
+    }
+    formData[key] = el.value;
+  }
+}
+
+// Restore a value to an element if present in formData
+function restoreValueTo(el) {
+  if (!el) return;
+  const key = el.id || el.name;
+  if (!key) return;
+  const val = formData[key];
+  if (val === undefined) return;
+
+  const type = (el.type || '').toLowerCase();
+  if (type === 'checkbox') {
+    el.checked = !!val;
+    return;
+  }
+  if (type === 'radio') {
+    if (el.value === val) el.checked = true;
+    return;
+  }
+  if (type === 'file') {
+    // cannot programmatically restore file inputs due to browser security
+    return;
+  }
+  el.value = val;
+}
 
 // Variable to store the prepared membership type
 let preparedMembershipType = null;
@@ -140,6 +247,8 @@ function setMembershipType(type) {
     enrolledDateField.required = true;
     // Trigger the change event to show payment upload section
     memberTypeSelect.dispatchEvent(new Event('change'));
+  // restore any cached values for membership fields
+  document.querySelectorAll('#page3 input, #page3 select, #page3 textarea').forEach(restoreValueTo);
   } else if (type === "passive") {
     // Set Passive Member for others
     memberTypeSelect.innerHTML = `<option value="passive" selected>Passive Member (Free)</option>`;
@@ -152,6 +261,8 @@ function setMembershipType(type) {
     enrolledDateField.required = false;
     // Trigger the change event to hide payment upload section
     memberTypeSelect.dispatchEvent(new Event('change'));
+  // restore any cached values for membership fields
+  document.querySelectorAll('#page3 input, #page3 select, #page3 textarea').forEach(restoreValueTo);
   } else {
     // Reset to normal dropdown
     memberTypeSelect.classList.remove("membership-auto-selected");
@@ -165,129 +276,17 @@ function setMembershipType(type) {
     enrolledDateLabel.style.display = "block";
     enrolledDateField.style.display = "block";
     enrolledDateField.required = false;
+  document.querySelectorAll('#page3 input, #page3 select, #page3 textarea').forEach(restoreValueTo);
   }
 }
 
 
-// First page verification and email sending logic
-sendCodeBtn.addEventListener("click", () => {
-  emailInput.removeAttribute("readonly");
-  const email = emailInput.value.trim();
-  let name = document.getElementById("fullName").value.trim();
-  const category = document.getElementById("category").value;
-  console.log(category);
-  if (email === "") 
-    {
-      showCustomAlert("Please enter a valid email");
-      // clicking ok button automatically closes the custom alert, coded in the 
-      return NaN;
-    }
-    else if (email === "@msstate.edu" || email === "@gmail.com")
-    {
-        showCustomAlert("Enter a valid address, dude!");
-        return NaN;
-    }
-  else if (name === "" || category === "") {
-      showCustomAlert("Please enter all the details.")
-      return NaN;
-  }
-  else if (category === "current" || category === "alumni")
-  {
-      if (email.endsWith("@msstate.edu"))
-      {
-        console.log("Valid Email for students/ alumni");
-          verifyGroup.classList.remove("hidden");
-              const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const transporter = nodemailer.createTransporter({
-      service: "gmail",
-      auth: {
-        user: "deeprodeveloper@gmail.com",
-        pass: "ukfa imyv xrns abiq"
-      }
-    });
-
-    const mailData = {
-      from: "deeprodeveloper@gmail.com",
-      to: email,
-      subject: 'Verification Code',
-      text: `Your verification code is ${verificationCode}`,
-    }
-
-    transporter.sendMail(mailData,(error,info) => {
-      if (error)
-      {
-        showCustomAlert("Error Occured! Please re-check your email or contact NSA.");
-        return NaN;
-      }
-      else
-      {
-        showCustomAlert("Verification Code has been sent to your email.");
-      }
-    })
-
-      }
-      else {
-        showCustomAlert("The email must end with @msstate.edu for current students/staffs, and alumni.");
-        return NaN;
-      }
-  }
-  else if (category === "others")
-  {
-    if (email.endsWith("@gmail.com"))
-    {
-      console.log("Valid Email for others part");
-        verifyGroup.classList.remove("hidden");
-            const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const transporter = nodemailer.createTransporter({
-      service: "gmail",
-      auth: {
-        user: "deeprodeveloper@gmail.com",
-        pass: "ukfa imyv xrns abiq"
-      }
-    });
-
-    const mailData = {
-      from: "deeprodeveloper@gmail.com",
-      to: email,
-      subject: 'Verification Code',
-      text: `Your verification code is ${verificationCode}`,
-    }
-
-    transporter.sendMail(mailData,(error,info) => {
-      if (error)
-      {
-        showCustomAlert("Error Occured! Please re-check your email or contact NSA.");
-        return NaN;
-      }
-      else
-      {
-        showCustomAlert("Verification Code has been sent to your email.");
-      }
-    })
-    }
-    else 
-    {
-      showCustomAlert("Since you are trying to register from others category, you are encouraged to use your primary google mail (gmail).")
-      return NaN;
-    }
-  }
-  });
-
-  // email verification code validation
-  verifyCodeInput.addEventListener("input", () => {
-    if (verifyCodeInput.value.trim() === verificationCode) {
-      verifiedMsg.classList.remove("hidden");
-      verifiedMsg.style.color = "#28a745";
-      verifiedMsg.textContent = "Email Verified";
-      next1.classList.remove("hidden");
-      emailInput.setAttribute("readonly","true");
-    } else {
-      verifiedMsg.classList.remove("hidden");
-      next1.classList.add("hidden");
-      verifiedMsg.style.color = "#ff6b6b";
-      verifiedMsg.textContent = "Wrong Code";
-    }
-  });
+// Default landing behavior: hide optional verification UI if present and hide next button
+function defaultLanding() {
+  const verifyGroupEl = document.getElementById('verifyGroup');
+  if (verifyGroupEl) verifyGroupEl.classList.add('hidden');
+  // leave next1 visible by default (verification removed)
+}
 
   // 🟢 Member type triggers payment upload (only for current MSU students/faculty)
   memberTypeSelect.addEventListener("change", () => {
@@ -311,30 +310,51 @@ sendCodeBtn.addEventListener("click", () => {
   }
 
   next1.addEventListener("click", () => {
+    // Validate current page before moving forward
+    if (!validatePage(0)) {
+      showCustomAlert('Please fill all required fields on this page before continuing.');
+      return;
+    }
+    // capture values from page 0
+    capturePageValues(0);
     // Store the selected category and load conditional fields for page 2
     formData["category"] = document.getElementById("category").value;
     showPage(1);
     loadConditionalFields(formData["category"]);
   });
   next2.addEventListener("click", () => {
-    // When moving to page 3 (membership page), set the prepared membership type
+    if (!validatePage(1)) {
+      showCustomAlert('Please fill all required fields on this page before continuing.');
+      return;
+    }
+  // When moving to page 3 (membership page), set the prepared membership type
     if (preparedMembershipType) {
       setMembershipType(preparedMembershipType);
     }
     showPage(2);
   });
   next3.addEventListener("click", () => {
+    if (!validatePage(2)) {
+      showCustomAlert('Please fill all required fields on this page before continuing.');
+      return;
+    }
     generateSummary();
     showPage(3);
   });
 
-  back1.addEventListener("click", () => showPage(0));
-  back2.addEventListener("click", () => showPage(1));
+  back1.addEventListener("click", () => {
+    showPage(0);
+  });
+  back2.addEventListener("click", () => {
+    capturePageValues(2);
+    showPage(1);
+  });
   back3.addEventListener("click", () => {
     // When returning to page 3 (membership page), re-set the prepared membership type
     if (preparedMembershipType) {
       setMembershipType(preparedMembershipType);
     }
+    capturePageValues(3);
     showPage(2);
   });
 
@@ -426,12 +446,7 @@ sendCodeBtn.addEventListener("click", () => {
 
 
 
-  // default first page, 
-  function defaultLanding() 
-  {
-    verifyGroup.classList.add("hidden");
-    next1.classList.add("hidden");
-  }
+  // default first page is handled by defaultLanding() above
 
 
   // 🟢 Final Submit
@@ -520,24 +535,32 @@ sendCodeBtn.addEventListener("click", () => {
   
   // Helper function to submit registration data
   function submitRegistration(submissionData) {
-    fetch("/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(submissionData)
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-  window.location.href = "/thank-you.html";
-      } else {
-        showCustomAlert("Submission failed: " + (data.error || "Unknown error"));
-      }
-    })
-    .catch(err => {
-      showCustomAlert("Error submitting form: " + err.message);
-    });
+    // Fetch CSRF token then submit with the token in header
+    fetch('/csrf-token', { method: 'GET', credentials: 'same-origin' })
+      .then(r => r.json())
+      .then(tokenResp => {
+        const token = tokenResp && tokenResp.csrfToken;
+        return fetch('/register', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'CSRF-Token': token || ''
+          },
+          body: JSON.stringify(submissionData)
+        });
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          window.location.href = "/thank-you.html";
+        } else {
+          showCustomAlert("Submission failed: " + (data.error || "Unknown error"));
+        }
+      })
+      .catch(err => {
+        showCustomAlert("Error submitting form: " + err.message);
+      });
   }
 
 

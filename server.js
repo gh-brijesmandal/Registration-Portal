@@ -1,7 +1,11 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const nodemailer = require('nodemailer');
+const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
+const csurf = require('csurf');
+const rateLimit = require('express-rate-limit');
+// nodemailer removed - verification email functionality disabled
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -30,6 +34,21 @@ if (!fs.existsSync(UPLOADS_DIR)) {
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+// Security middlewares
+app.use(helmet());
+app.use(cookieParser());
+
+// Basic rate limiter for write endpoints
+const writeLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 20, // limit each IP to 20 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// CSRF protection using cookies. We'll expose a GET /csrf-token that returns the token.
+const csrfProtection = csurf({ cookie: true });
+
 // portal name here 
 
 const allowedOrigins = ['https//PORTAL_NAME.com','http://localhost:3000']; // Add more if needed
@@ -40,7 +59,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', origin);
   }
   res.header('Access-Control-Allow-Methods', 'GET,POST');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, CSRF-Token');
   next();
 });
 
@@ -89,7 +108,7 @@ app.get("/thank-you.html", (req,res) => {
 })
 
 // POST /register - save registration
-app.post('/register', (req, res) => {
+app.post('/register', writeLimiter, csrfProtection, (req, res) => {
   // send the ty shit
 
   // res.sendFile(path.join(__dirname,"/views","thank-you.html"));
@@ -177,44 +196,10 @@ app.get('/registrations', (req, res) => {
 });
 
 // POST /send-verification-code - send verification code to email
-app.post('/send-verification-code', async (req, res) => {
-  const { email } = req.body;
-  if (!email) {
-    return res.status(400).json({ error: 'Email is required' });
-  }
-
-//   // Generate a 6-digit verification code
-//   const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-//   // Create a Nodemailer transporter using your email service details
-//   // IMPORTANT: Replace with your actual email service credentials
-//   const transporter = nodemailer.createTransporter({
-//     service: 'gmail', // e.g., 'gmail', 'outlook', or a custom SMTP server
-//     auth: {
-//       user: '', // Your email address
-//       pass: ''   // Your email password or app-specific password
-//     }
-//   });
-
-//   const mailOptions = {
-//     from: 'deeprodeveloper@gmail.com', // Sender address
-//     to: email,                       // Recipient address
-//     subject: 'Your Verification Code',
-//     html: `<p>Your verification code is: <b>${verificationCode}</b></p>`
-//   };
-
-//   try {
-//     await transporter.sendMail(mailOptions);
-//     console.log(`Verification code sent to ${email}: ${verificationCode}`);
-//     res.json({ success: true, message: 'Verification code sent successfully!' });
-//   } catch (error) {
-//     console.error('Error sending verification email:', error);
-//     res.status(500).json({ success: false, error: 'Failed to send verification code.' });
-//   }
-  });
+// Verification endpoint removed. Email verification is no longer required.
 
 // POST /update-status - update registration status
-app.post('/update-status', (req, res) => {
+app.post('/update-status', writeLimiter, csrfProtection, (req, res) => {
   const { index, status } = req.body;
   
   if (typeof index !== 'number' || !['approved', 'rejected'].includes(status)) {
@@ -259,4 +244,9 @@ app.use((req,res,next) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+});
+
+// Expose a route to get CSRF token for client-side fetches
+app.get('/csrf-token', csrfProtection, (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
 });
