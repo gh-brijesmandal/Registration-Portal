@@ -431,23 +431,30 @@ function updateEmailInstructions(category) {
 function updateMembershipOptions(category) {
     const passiveMemberOption = document.getElementById('passiveMemberOption');
     const membershipNote = document.getElementById('membershipNote');
-    
+    const membershipRadios = document.querySelectorAll('input[name="membershipType"]');
+
     if (category === 'current-msu') {
-        // Check if it's a student
-        const role = document.querySelector('input[name="msuRole"]:checked')?.value;
-        if (role === 'student') {
-            passiveMemberOption.style.display = 'none';
-            membershipNote.textContent = 'Active membership is compulsory for students';
-            // Auto-select active membership
-            document.getElementById('activeMember').checked = true;
-            handleMembershipTypeChange();
-        } else {
-            passiveMemberOption.style.display = 'block';
-            membershipNote.textContent = '';
-        }
+        // Force Active membership for all MSU members and prevent changes
+        membershipRadios.forEach(radio => {
+            if (radio.value === 'active') {
+                radio.checked = true;
+            } else {
+                radio.checked = false;
+            }
+            radio.disabled = true;
+        });
+
+        if (passiveMemberOption) passiveMemberOption.style.display = 'none';
+        if (membershipNote) membershipNote.textContent = 'Active membership is compulsory for MSU members and selection has been locked.';
+        handleMembershipTypeChange();
     } else {
-        passiveMemberOption.style.display = 'block';
-        membershipNote.textContent = '';
+        // Re-enable selection for non-MSU users
+        membershipRadios.forEach(radio => {
+            radio.disabled = false;
+        });
+
+        if (passiveMemberOption) passiveMemberOption.style.display = 'block';
+        if (membershipNote) membershipNote.textContent = '';
     }
 }
 

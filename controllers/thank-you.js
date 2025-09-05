@@ -114,22 +114,10 @@ Submission Date: ${formatDateTime(data.submissionDate)}
 
 PERSONAL INFORMATION
 --------------------
-Name: ${data.firstName} ${data.lastName}
+Name: ${data.fullName}
 Email: ${data.email}
-Phone: ${data.phone}
-Date of Birth: ${data.dateOfBirth}
-Gender: ${data.gender}
-
-ADDRESS INFORMATION
--------------------
-Address: ${data.address}
-City: ${data.city}
-Country: ${data.country}
-
-ADDITIONAL INFORMATION
-----------------------
-Occupation: ${data.occupation || 'Not provided'}
-Interests: ${data.interests || 'Not provided'}
+Membership Type: ${data.membershipType}
+Role: ${data.msuRole}
 
 Thank you for your registration!
     `.trim();

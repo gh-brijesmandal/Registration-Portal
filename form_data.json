@@ -414,5 +414,35 @@
     "staffYears": "4",
     "paymentProof": "Screenshot (1).png",
     "timestamp": "2025-09-05T18:22:56.447Z"
+  },
+  {
+    "fullName": "Ramehs",
+    "category": "current-msu",
+    "email": "bm2434@msstate.edu",
+    "othersCountry": "us",
+    "othersCity": "Starkville",
+    "relationshipNSA": "supporter",
+    "involvement": [
+      "support"
+    ],
+    "membershipType": "active",
+    "agreeMSU": "on",
+    "agreeNSA": "on",
+    "submitted": true,
+    "submissionDate": "2025-09-05T22:34:59.520Z",
+    "emailType": "msu",
+    "graduationYear": "2001",
+    "degreeEarned": "1",
+    "alumniDepartment": "1",
+    "currentCountry": "au",
+    "currentState": "1",
+    "currentProfession": "1",
+    "supportNSA": "yes",
+    "msuRole": "staff",
+    "staffOffice": "Physics",
+    "staffRole": "Prof",
+    "staffYears": "4",
+    "paymentProof": "Screenshot (1).png",
+    "timestamp": "2025-09-05T22:34:59.611Z"
   }
 ]

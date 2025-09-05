@@ -88,7 +88,7 @@ app.post('/registration-form', async (req, res) => {
         transporter.sendMail({
             to: body.email,
             subject: 'Registration Successful',
-            text: `Dear intelactual ${body.fullName}, your registration has been successful. Thank you.`
+            text: `Dear ${body.fullName}, your registration has been successful. Thank you.`
         }).then(() => {
             console.log("Email Sent");
         }).catch(err => {
