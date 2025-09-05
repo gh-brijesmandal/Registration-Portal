@@ -4,25 +4,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🇳🇵 NSA Admin Login</title>
-    <link rel="stylesheet" href="/css/admin.css">
+    <title>Admin Panel - Registration Portal</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .admin-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+        }
+
+        .admin-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #667eea;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .registrations-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .registrations-table th,
+        .registrations-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .registrations-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="nsa-animation">Admin Panel</div>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+        🌙
+    </button>
+
     <div class="container">
-        <h2>Admin Login</h2>
-        <div class="form">
-            <form action="/login" method="POST" id="adminLoginForm">
-                <input type="email" id="adminEmail" placeholder="Admin Email" required>
-                <input type="password" id="adminPassword" placeholder="Password" required>
-                <button type="submit" id="submitButton">Login</button>
-                <input type="button" value="Back to Home" id="backButton">
-                <p id="loginStatus" class="error-message"></p>
-            </form>
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>Admin Panel</h1>
+                <p>Registration Overview and Management</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalRegistrations">0</div>
+                    <div>Total Registrations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="todayRegistrations">0</div>
+                    <div>Today's Registrations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="thisWeekRegistrations">0</div>
+                    <div>This Week</div>
+                </div>
+            </div>
+
+            <div class="btn-group" style="margin-bottom: 20px;">
+                <button type="button" class="btn" onclick="refreshData()">Refresh Data</button>
+                <button type="button" class="btn btn-secondary" onclick="clearAllData()">Clear All Data</button>
+                <button type="button" class="btn btn-secondary" onclick="exportData()">Export Data</button>
+            </div>
+
+            <div id="registrationsContainer">
+                <!-- Registrations table will be populated by JavaScript -->
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-secondary" onclick="goToHome()">Back to Portal</button>
+            </div>
         </div>
     </div>
 
+    <script src="/js/theme.js"></script>
     <script src="/js/admin.js"></script>
 </body>
 

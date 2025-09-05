@@ -4,21 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🇳🇵 NSA Resgistration Portal</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <title>Registration Portal</title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 
 <body>
-    <div class="nsa-animation">NSA-MSSTATE</div>
-    <div class="container">
-        <h1 id="heading">WELCOME TO NSA REGISTRATION PORTAL.</h1>
-        <div class="buttons">
-            <input type="button" value="Register" id="registerButton">
-            <input type="button" value="Admin Panel" id="adminButton">
-        </div>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+        🌙
+    </button>
+
+    <div class="loading-container" id="loadingContainer">
+        <div class="logo">Registration Portal</div>
+        <div class="loading-spinner" id="loadingSpinner"></div>
+        <div class="welcome-text" id="welcomeText">Welcome to our Registration System</div>
+        <button class="start-btn" id="startBtn" onclick="startRegistration()">Start Registration</button>
     </div>
 
-    <script src="/js/script.js"></script>
+    <script src="/js/theme.js"></script>
+    <script src="/js/index.js"></script>
 </body>
 
 </html>

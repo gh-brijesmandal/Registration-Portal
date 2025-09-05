@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSA Registration Form - Registration Portal</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+        🌙
+    </button>
+
+    <div class="container">
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 16.67%;"></div>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active" id="step1">1</div>
+            <div class="step" id="step2">2</div>
+            <div class="step" id="step3">3</div>
+            <div class="step" id="step4">4</div>
+            <div class="step" id="step5">5</div>
+            <div class="step" id="step6">6</div>
+        </div>
+
+        <div class="form-container">
+            <form id="registrationForm" action="/registration-form" method="POST">
+
+                <!-- Step 1: Full Name -->
+                <div class="form-step active" id="formStep1">
+                    <div class="form-header">
+                        <h1>Step 1: Full Name</h1>
+                        <p>Enter your full legal name as it appears on official documents</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fullName">Full Legal Name *</label>
+                        <input type="text" id="fullName" name="fullName" placeholder="Enter your full legal name"
+                            required>
+                        <div class="error-message" id="fullNameError"></div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="goBack()">Back</button>
+                        <button type="button" class="btn" onclick="nextStep(2)">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Category Selection -->
+                <div class="form-step" id="formStep2">
+                    <div class="form-header">
+                        <h1>Step 2: Select Category</h1>
+                        <p>Choose the category that best describes your relationship with MSU</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="currentMSU" name="category" value="current-msu" required>
+                                <label for="currentMSU">Current MSU Student / Staff / Faculty</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="alumni" name="category" value="alumni" required>
+                                <label for="alumni">MSU Alumni</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="others" name="category" value="others" required>
+                                <label for="others">Others</label>
+                            </div>
+                        </div>
+                        <div class="error-message" id="categoryError"></div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep(1)">Back</button>
+                        <button type="button" class="btn" onclick="nextStep(3)">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Email Entry and Verification -->
+                <div class="form-step" id="formStep3">
+                    <div class="form-header">
+                        <h1>Step 3: Email </h1>
+                        <p id="emailInstructions">Enter your email address</p>
+                    </div>
+
+                    <!-- Email Type Selection for Alumni -->
+                    <div class="form-group" id="emailTypeGroup" style="display: none;">
+                        <label>Email Type *</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="msuEmail" name="emailType" value="msu">
+                                <label for="msuEmail">MSU Email (@msstate.edu)</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="personalEmail" name="emailType" value="personal">
+                                <label for="personalEmail">Personal Email</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required>
+                        <div class="error-message" id="emailError"></div>
+                        <div class="info-message" id="emailInfo"></div>
+                    </div>
+
+                    <div class="form-group" id="verificationGroup" style="display: none;">
+                        <label for="verificationCode">Verification Code *</label>
+                        <input type="text" id="verificationCode" name="verificationCode"
+                            placeholder="Enter 6-digit code">
+                        <button type="button" class="btn-link" onclick="sendVerificationCode()">Send Code</button>
+                        <div class="error-message" id="verificationError"></div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep(2)">Back</button>
+                        <button type="button" class="btn" onclick="nextStep(4)">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Conditional Form Fields -->
+                <div class="form-step" id="formStep4">
+                    <div class="form-header">
+                        <h1>Step 4: Additional Information</h1>
+                        <p id="step4Instructions">Please provide additional details</p>
+                    </div>
+
+                    <!-- Current MSU Fields -->
+                    <div id="currentMSUFields" style="display: none;">
+                        <div class="form-group">
+                            <label>Role *</label>
+                            <div class="radio-group">
+                                <div class="radio-option">
+                                    <input type="radio" id="student" name="msuRole" value="student">
+                                    <label for="student">Student</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="faculty" name="msuRole" value="faculty">
+                                    <label for="faculty">Faculty</label>
+                                </div>
+                                <div class="radio-option">
+                                    <input type="radio" id="staff" name="msuRole" value="staff">
+                                    <label for="staff">Staff</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Student Fields -->
+                        <div id="studentFields" style="display: none;">
+                            <div class="form-group">
+                                <label for="studentLevel">Level *</label>
+                                <select id="studentLevel" name="studentLevel">
+                                    <option value="">Select Level</option>
+                                    <option value="undergraduate">Undergraduate</option>
+                                    <option value="graduate">Graduate</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="major">Major / Department *</label>
+                                <input type="text" id="major" name="major">
+                            </div>
+                            <div class="form-group">
+                                <label for="expectedGraduation">Expected Graduation *</label>
+                                <select id="expectedGraduation" name="expectedGraduation">
+                                    <option value="">Select Semester and Year</option>
+                                    <option value="Fall 2024">Fall 2024</option>
+                                    <option value="Spring 2025">Spring 2025</option>
+                                    <option value="Fall 2025">Fall 2025</option>
+                                    <option value="Spring 2026">Spring 2026</option>
+                                    <option value="Fall 2026">Fall 2026</option>
+                                    <option value="Spring 2027">Spring 2027</option>
+                                    <option value="Fall 2027">Fall 2027</option>
+                                    <option value="Spring 2028">Spring 2028</option>
+                                    <option value="Fall 2028">Fall 2028</option>
+                                    <option value="Spring 2029">Spring 2029</option>
+                                    <option value="Fall 2029">Fall 2029</option>
+                                    <option value="Spring 2030">Spring 2030</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Faculty Fields -->
+                        <div id="facultyFields" style="display: none;">
+                            <div class="form-group">
+                                <label for="facultyDepartment">Department *</label>
+                                <input type="text" id="facultyDepartment" name="facultyDepartment">
+                            </div>
+                            <div class="form-group">
+                                <label for="facultyPosition">Position / Title *</label>
+                                <input type="text" id="facultyPosition" name="facultyPosition">
+                            </div>
+                            <div class="form-group">
+                                <label for="facultyYears">Years at MSU *</label>
+                                <input type="number" id="facultyYears" name="facultyYears" min="0">
+                            </div>
+                        </div>
+
+                        <!-- Staff Fields -->
+                        <div id="staffFields" style="display: none;">
+                            <div class="form-group">
+                                <label for="staffOffice">Office / Department *</label>
+                                <input type="text" id="staffOffice" name="staffOffice">
+                            </div>
+                            <div class="form-group">
+                                <label for="staffRole">Role / Position *</label>
+                                <input type="text" id="staffRole" name="staffRole">
+                            </div>
+                            <div class="form-group">
+                                <label for="staffYears">Years at MSU *</label>
+                                <input type="number" id="staffYears" name="staffYears" min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alumni Fields -->
+                    <div id="alumniFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="graduationYear">Year of Graduation *</label>
+                            <input type="number" id="graduationYear" name="graduationYear" min="1950" max="2025">
+                        </div>
+                        <div class="form-group">
+                            <label for="degreeEarned">Degree Earned *</label>
+                            <input type="text" id="degreeEarned" name="degreeEarned">
+                        </div>
+                        <div class="form-group">
+                            <label for="alumniDepartment">Department / Major *</label>
+                            <input type="text" id="alumniDepartment" name="alumniDepartment">
+                        </div>
+                        <div class="form-group">
+                            <label for="currentCountry">Current Country *</label>
+                            <select id="currentCountry" name="currentCountry">
+                                <option value="">Select Country</option>
+                                <option value="us">United States</option>
+                                <option value="uk">United Kingdom</option>
+                                <option value="ca">Canada</option>
+                                <option value="au">Australia</option>
+                                <option value="in">India</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="currentState">Current State *</label>
+                            <input type="text" id="currentState" name="currentState">
+                        </div>
+                        <div class="form-group">
+                            <label for="currentProfession">Current Profession *</label>
+                            <input type="text" id="currentProfession" name="currentProfession">
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="supportNSA" name="supportNSA" value="yes">
+                                <label for="supportNSA">I am interested in supporting NSA</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Others Fields -->
+                    <div id="othersFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="othersCountry">Country *</label>
+                            <select id="othersCountry" name="othersCountry">
+                                <option value="">Select Country</option>
+                                <option value="us">United States</option>
+                                <option value="uk">United Kingdom</option>
+                                <option value="ca">Canada</option>
+                                <option value="au">Australia</option>
+                                <option value="in">India</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="othersCity">City *</label>
+                            <input type="text" id="othersCity" name="othersCity">
+                        </div>
+                        <div class="form-group">
+                            <label for="relationshipNSA">Relationship with NSA *</label>
+                            <select id="relationshipNSA" name="relationshipNSA">
+                                <option value="">Select Relationship</option>
+                                <option value="friend">Friend of member</option>
+                                <option value="colleague">Professional colleague</option>
+                                <option value="interested">Interested in activities</option>
+                                <option value="supporter">Community supporter</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Interest in involvement *</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="volunteering" name="involvement" value="volunteering">
+                                <label for="volunteering">Volunteering</label>
+
+                                <input type="checkbox" id="support" name="involvement" value="support">
+                                <label for="support">Financial Support</label>
+
+                                <input type="checkbox" id="events" name="involvement" value="events">
+                                <label for="events">Attending Events</label>
+
+                                <input type="checkbox" id="networking" name="involvement" value="networking">
+                                <label for="networking">Networking</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep(3)">Back</button>
+                        <button type="button" class="btn" onclick="nextStep(5)">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Membership Type Selection -->
+                <div class="form-step" id="formStep5">
+                    <div class="form-header">
+                        <h1>Step 5: Membership Type</h1>
+                        <p>Select your membership type and complete payment if required</p>
+                    </div>
+
+                    <div class="membership-options">
+                        <div class="membership-card" id="activeMemberCard">
+                            <h3>Active Member (Paid)</h3>
+                            <div class="membership-price" id="membershipPrice">$20</div>
+                            <ul>
+                                <li>Full voting rights</li>
+                                <li>Access to all events</li>
+                                <li>NSA newsletter subscription</li>
+                                <li>Networking opportunities</li>
+                            </ul>
+                            <div class="membership-note" id="membershipNote"></div>
+                        </div>
+
+                        <div class="membership-card" id="passiveMemberCard">
+                            <h3>Passive Member (Free)</h3>
+                            <div class="membership-price">Free</div>
+                            <ul>
+                                <li>Event notifications</li>
+                                <li>Newsletter subscription</li>
+                                <li>Basic networking</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Membership Type *</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="activeMember" name="membershipType" value="active">
+                                <label for="activeMember">Active Member (Paid)</label>
+                            </div>
+                            <div class="radio-option" id="passiveMemberOption">
+                                <input type="radio" id="passiveMember" name="membershipType" value="passive">
+                                <label for="passiveMember">Passive Member (Free)</label>
+                            </div>
+                        </div>
+                        <div class="error-message" id="membershipError"></div>
+                    </div>
+
+                    <!-- Payment Upload Section -->
+                    <div id="paymentSection" style="display: none;">
+                        <div class="form-group">
+                            <label for="paymentProof">Upload Proof of Payment *</label>
+                            <input type="file" id="paymentProof" name="paymentProof" accept=".jpg,.jpeg,.png,.pdf"
+                                max-size="2048">
+                            <div class="file-info">Supported formats: JPG, PNG, PDF (Max 2MB)</div>
+                            <div class="error-message" id="paymentError"></div>
+                        </div>
+
+                        <div class="payment-instructions">
+                            <h4>Payment Instructions:</h4>
+                            <p>Please make payment via bank transfer or online payment and upload the receipt.</p>
+                            <p><strong>Amount:</strong> <span id="paymentAmount">$20</span></p>
+                            <p><strong>Valid until:</strong> <span id="validUntil"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep(4)">Back</button>
+                        <button type="button" class="btn" onclick="nextStep(6)">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 6: Final Confirmation -->
+                <div class="form-step" id="formStep6">
+                    <div class="form-header">
+                        <h1>Step 6: Final Confirmation</h1>
+                        <p>Review your information and agree to terms before submitting</p>
+                    </div>
+
+                    <div id="summaryContent">
+                        <!-- Summary will be populated by JavaScript -->
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="agreeMSU" name="agreeMSU" required>
+                            <label for="agreeMSU">I agree to comply with MSU policies *</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="agreeNSA" name="agreeNSA" required>
+                            <label for="agreeNSA">I agree to abide by NSA's Constitution and Code of Conduct *</label>
+                        </div>
+                        <div class="error-message" id="agreementError"></div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="previousStep(5)">Back</button>
+                        <button type="submit" class="btn">Submit Registration</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/theme.js"></script>
+    <script src="/js/registration-form.js"></script>
+</body>
+
+</html>

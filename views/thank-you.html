@@ -4,26 +4,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thank You!</title>
-    <link rel="stylesheet" href="/css/thank-you.css">
-
+    <title>Thank You - Registration Portal</title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 
 <body>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+        🌙
+    </button>
+
     <div class="container">
-        <div class="confirmation-box">
-            <div class="icon-container">
-                &#10004; <!-- Checkmark Icon -->
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 100%;"></div>
+        </div>
+
+        <div class="thank-you-container">
+            <div class="success-icon">✅</div>
+            <h1>Thank You!</h1>
+            <p>Your registration has been successfully submitted. We have received your information and will process it
+                shortly.</p>
+
+            <div id="registrationDetails">
+                <!-- Registration details will be populated by JavaScript -->
             </div>
-            <h1>Submission Successful!</h1>
-            <p>Thank you for registering. Your information has been received. Please wait for any email regarding your
-                memebership.</p>
-            <div class="button-group">
-                <a href="/registration.html" class="btn">Register Another Person</a>
-                <a href="/index.html" class="btn btn-secondary">Go to Homepage</a>
+
+            <p>You will receive a confirmation email shortly at the address you provided.</p>
+
+            <div class="btn-group">
+                <button type="button" class="btn" onclick="startNewRegistration()">New Registration</button>
+                <button type="button" class="btn btn-secondary" onclick="downloadSummary()">Download Summary</button>
             </div>
         </div>
     </div>
+
+    <script src="/js/theme.js"></script>
+    <script src="/js/thank-you.js"></script>
 </body>
 
 </html>
